@@ -1,9 +1,12 @@
 // I think let's start with CRUD operations for single products
 // that way I can then do those user stories with it
 
+import DatabaseManager from "./database";
+
 class ProductsManager {
   constructor(products) {
     this.products = products;
+    this.databaseManager = new DatabaseManager();
   }
   isValid() {
     const requiredProperties = [
@@ -35,7 +38,30 @@ class ProductsManager {
       return true;
     }
   }
-  getProduct(identifier) {}
+
+  async getProduct(identifier) {
+    const dbConnection = this.databaseManager.connect();
+
+    let product;
+    await new Promise((resolve, reject) => {
+      dbConnection.query(
+        `SELECT * FROM products WHERE identifier = ${identifier}`,
+        (error, results) => {
+          product = results[0];
+
+          if (product) {
+            resolve();
+          }
+
+          if (error) {
+            reject();
+          }
+        }
+      );
+    });
+
+    return product;
+  }
 }
 
 export default ProductsManager;

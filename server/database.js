@@ -11,6 +11,8 @@ class DatabaseManager {
       database: process.env.DB_NAME,
     });
 
-    return connection.connect();
+    return connection;
   }
 }
+
+export default DatabaseManager;
