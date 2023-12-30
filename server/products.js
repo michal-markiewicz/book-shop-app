@@ -45,7 +45,8 @@ class ProductsManager {
     let product;
     await new Promise((resolve, reject) => {
       dbConnection.query(
-        `SELECT * FROM products WHERE identifier = ${identifier}`,
+        `SELECT * FROM products WHERE identifier = ?`,
+        [identifier],
         (error, results) => {
           product = results[0];
 
