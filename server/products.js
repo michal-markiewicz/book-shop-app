@@ -7,9 +7,7 @@ class ProductsManager {
   constructor(products) {
     this.products = products;
     this.databaseManager = new DatabaseManager();
-  }
-  isValid() {
-    const requiredProperties = [
+    this.requiredProperties = [
       "identifier",
       "name",
       "category",
@@ -20,10 +18,11 @@ class ProductsManager {
       "rating",
       "reviewCount",
     ];
-
-    let anyProductMissingProps = false;
+  }
+  isValid() {
+    let anyProductMissingProps;
     this.products.forEach((product) => {
-      const allRequiredPropertiesCheck = requiredProperties.every(
+      const allRequiredPropertiesCheck = this.requiredProperties.every(
         (requiredProperty) => product.hasOwnProperty(requiredProperty)
       );
 
@@ -33,6 +32,23 @@ class ProductsManager {
     });
 
     if (anyProductMissingProps) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  isValidSingle(product) {
+    let productMissingProps;
+    const allRequiredPropertiesCheck = this.requiredProperties.every(
+      (requiredProperty) => product.hasOwnProperty(requiredProperty)
+    );
+
+    if (!allRequiredPropertiesCheck) {
+      productMissingProps = true;
+    }
+
+    if (productMissingProps) {
       return false;
     } else {
       return true;
@@ -62,6 +78,47 @@ class ProductsManager {
     });
 
     return product;
+  }
+
+  async updateProduct(updatedProduct) {
+    const product = await this.getProduct(updatedProduct.identifier);
+
+    if (product) {
+      const validProduct = this.isValidSingle(updatedProduct);
+      if (validProduct) {
+        const dbConnection = this.databaseManager.connect();
+
+        await new Promise((resolve, reject) => {
+          dbConnection.query(
+            `UPDATE products 
+             SET name = ?, category = ?, price = ?, description = ?, images = ?, quantity = ?, rating = ?, reviewCount = ? 
+             WHERE identifier = ?;`,
+            [
+              updatedProduct.name,
+              updatedProduct.category,
+              updatedProduct.price,
+              updatedProduct.description,
+              updatedProduct.images,
+              updatedProduct.quantity,
+              updatedProduct.rating,
+              updatedProduct.reviewCount,
+              updatedProduct.identifier,
+            ],
+            (error) => {
+              if (!error) {
+                resolve();
+              } else {
+                reject();
+              }
+            }
+          );
+        });
+
+        return "Product was updated.";
+      }
+    } else {
+      return "Product with this identifier doesn't exist.";
+    }
   }
 }
 

@@ -15,3 +15,13 @@ export async function GET(request, { params }) {
     status: 200,
   });
 }
+
+export async function PUT(request, { params }) {
+  const updatedProduct = await request.json();
+  const productsManager = new ProductsManager();
+  const updateResult = await productsManager.updateProduct(updatedProduct);
+
+  return new Response(updateResult, {
+    status: 200,
+  });
+}
