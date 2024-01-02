@@ -58,26 +58,32 @@ class ProductsManager {
   async getProduct(identifier) {
     const dbConnection = this.databaseManager.connect();
 
-    let product;
-    await new Promise((resolve, reject) => {
-      dbConnection.query(
-        `SELECT * FROM products WHERE identifier = ?`,
-        [identifier],
-        (error, results) => {
-          product = results[0];
+    try {
+      const product = await new Promise((resolve, reject) => {
+        dbConnection.query(
+          `SELECT * FROM products WHERE identifier = ?`,
+          [identifier],
+          (error, results) => {
+            const product = results[0];
 
-          if (product) {
-            resolve();
+            if (error) {
+              reject(new Error(error));
+            }
+
+            if (product) {
+              resolve(product);
+            } else {
+              reject(new Error("Product couldn't be found."));
+            }
           }
+        );
+      });
 
-          if (error) {
-            reject();
-          }
-        }
-      );
-    });
-
-    return product;
+      return product;
+    } catch (error) {
+      console.log(error);
+      return error.toString();
+    }
   }
 
   async updateProduct(updatedProduct) {
