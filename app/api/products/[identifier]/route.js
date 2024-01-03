@@ -4,7 +4,7 @@ export async function GET(request, { params }) {
   const identifier = params?.identifier;
 
   if (!identifier) {
-    return new Response("Provide product identifier plz.", {
+    return new Response("Provide product identifier.", {
       status: 403,
     });
   }
@@ -24,4 +24,18 @@ export async function PUT(request, { params }) {
   return new Response(updateResult, {
     status: 200,
   });
+}
+
+export async function DELETE(request, { params }) {
+  const identifier = params?.identifier;
+
+  if (!identifier) {
+    return new Response("Provide product identifier.", {
+      status: 403,
+    });
+  }
+  const productsManager = new ProductsManager();
+  const deleteResult = await productsManager.deleteProduct(params.identifier);
+
+  return new Response(deleteResult, { status: 200 });
 }
