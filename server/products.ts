@@ -1,6 +1,3 @@
-// I think let's start with CRUD operations for single products
-// that way I can then do those user stories with it
-
 import DatabaseManager from "./database";
 
 interface Product {
@@ -21,7 +18,9 @@ interface IProductsManager {
   getProduct(identifier: string): Promise<Product | string>;
   updateProduct(updatedProduct: Product): Promise<string>;
   deleteProduct(identifier: string): Promise<string>;
+  deleteAllProducts(): Promise<string>;
   addProduct(product: Product): Promise<string>;
+  addAllProducts(products: Product[]): Promise<string>;
 }
 
 class ProductsManager implements IProductsManager {
@@ -188,6 +187,45 @@ class ProductsManager implements IProductsManager {
       console.error(new Error(error));
       return error;
     }
+  }
+
+  async deleteAllProducts() {
+    try {
+      const dbConnection = this.databaseManager.createConnection();
+
+      const result = await new Promise((resolve, reject) => {
+        dbConnection.query("DELETE FROM products", (error) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve("Products removed.");
+          }
+        });
+      });
+
+      return result;
+    } catch (error) {
+      console.error(new Error(error));
+      return error;
+    }
+  }
+
+  async addAllProducts(products) {
+    let result;
+
+    for (const product of products) {
+      const addProductResult = await this.addProduct(product);
+
+      if (addProductResult !== "Product added to the database.") {
+        result = "Something went wrong.";
+      }
+    }
+
+    if (!result) {
+      result = "Products added to the database";
+    }
+
+    return result;
   }
 
   async addProduct(product) {

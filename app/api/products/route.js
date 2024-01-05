@@ -13,7 +13,16 @@ export async function POST(request) {
     });
   }
 
-  return new Response("Products updated.", {
+  const result = await productsManager.addAllProducts(products);
+
+  return new Response(result, {
     status: 200,
   });
+}
+
+export async function DELETE() {
+  const productsManager = new ProductsManager();
+  const result = await productsManager.deleteAllProducts();
+
+  return new Response(result, { status: 200 });
 }
