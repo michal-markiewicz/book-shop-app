@@ -21,6 +21,7 @@ interface IProductsManager {
   getProduct(identifier: string): Promise<Product | string>;
   updateProduct(updatedProduct: Product): Promise<string>;
   deleteProduct(identifier: string): Promise<string>;
+  addProduct(product: Product): Promise<string>;
 }
 
 class ProductsManager implements IProductsManager {
@@ -182,6 +183,50 @@ class ProductsManager implements IProductsManager {
         );
       });
 
+      return result;
+    } catch (error) {
+      console.error(new Error(error));
+      return error;
+    }
+  }
+
+  async addProduct(product) {
+    const isValid = this.isValidSingle(product);
+
+    console.log(product);
+
+    if (!isValid) {
+      return "This product is not valid.";
+    }
+
+    try {
+      const dbConnection = this.databaseManager.createConnection();
+      const result = await new Promise((resolve, reject) => {
+        dbConnection.query(
+          `INSERT INTO products (identifier, name, category, price,
+                description, images, quantity, rating, reviewCount) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            product.identifier,
+            product.name,
+            product.category,
+            product.price,
+            product.description,
+            product.images,
+            product.quantity,
+            product.rating,
+            product.reviewCount,
+          ],
+          (error) => {
+            if (!error) {
+              resolve("Product added to the database.");
+            } else {
+              console.error(new Error(error));
+              reject(error);
+            }
+          }
+        );
+      });
       return result;
     } catch (error) {
       console.error(new Error(error));

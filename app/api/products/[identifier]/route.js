@@ -39,3 +39,13 @@ export async function DELETE(request, { params }) {
 
   return new Response(deleteResult, { status: 200 });
 }
+
+export async function POST(request) {
+  const product = await request.json();
+  const productsManager = new ProductsManager();
+  const addResult = await productsManager.addProduct(product);
+
+  return new Response(addResult, {
+    status: 200,
+  });
+}
