@@ -26,3 +26,10 @@ export async function DELETE() {
 
   return new Response(result, { status: 200 });
 }
+
+export async function GET() {
+  const productsManager = new ProductsManager();
+  const result = await productsManager.getAllProducts();
+
+  return new Response(JSON.stringify(result), { status: 200 });
+}

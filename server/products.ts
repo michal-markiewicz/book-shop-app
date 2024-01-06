@@ -21,6 +21,7 @@ interface IProductsManager {
   deleteAllProducts(): Promise<string>;
   addProduct(product: Product): Promise<string>;
   addAllProducts(products: Product[]): Promise<string>;
+  getAllProducts(): Promise<Product[] | string>;
 }
 
 class ProductsManager implements IProductsManager {
@@ -43,6 +44,31 @@ class ProductsManager implements IProductsManager {
       "reviewCount",
     ];
   }
+
+  async getAllProducts() {
+    try {
+      const dbConnection = this.databaseManager.createConnection();
+      const result = await new Promise((resolve, reject) => {
+        dbConnection.query(`SELECT * FROM products`, (error, results) => {
+          if (error) {
+            reject(new Error(error));
+          }
+
+          if (results) {
+            resolve(results);
+          } else {
+            reject(new Error("Product couldn't be found."));
+          }
+        });
+      });
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      return error.toString();
+    }
+  }
+
   isValid() {
     let anyProductMissingProps;
     this.products.forEach((product) => {
